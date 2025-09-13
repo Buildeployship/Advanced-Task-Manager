@@ -35,33 +35,35 @@ This project uses [`next/font`](https://nextjs.org/docs/app/building-your-applic
 
 ## Project Structure
 Create the following folder structure:
-src/
-├── app/
-│   ├── auth/
+
+├── src/
+│   ├── app/
+│   │   ├── auth/
+│   │   │   └── page.tsx
+│   │   ├── dashboard/
+│   │   │   └── page.tsx
+│   │   ├── globals.css
+│   │   ├── layout.tsx
 │   │   └── page.tsx
-│   ├── dashboard/
-│   │   └── page.tsx
-│   ├── globals.css
-│   ├── layout.tsx
-│   └── page.tsx
-├── components/
-│   ├── ui/
-│   │   ├── button.tsx
-│   │   ├── dialog.tsx
-│   │   ├── input.tsx
-│   │   └── label.tsx
-│   ├── auth/
-│   │   └── auth-form.tsx
-│   ├── tasks/
-│   │   ├── task-form.tsx
-│   │   ├── task-item.tsx
-│   │   └── task-list.tsx
-│   └── navigation.tsx
-├── lib/
-│   ├── supabase/
-│   │   ├── client.ts
-│   │   ├── server.ts
-│   │   └── middleware.ts
-│   ├── types.ts
-│   └── utils.ts
-└── middleware.ts
+│   ├── components/
+│   │   ├── ui/
+│   │   │   ├── button.tsx
+│   │   │   ├── dialog.tsx
+│   │   │   ├── input.tsx
+│   │   │   └── label.tsx
+│   │   ├── auth/
+│   │   │   └── auth-form.tsx
+│   │   ├── tasks/
+│   │   │   ├── task-form.tsx
+│   │   │   ├── task-item.tsx
+│   │   │   └── task-list.tsx
+│   │   └── navigation.tsx
+│   └── lib/
+│       ├── supabase/
+│       │   ├── client.ts
+│       │   └── server.ts
+│       ├── types.ts
+│       └── utils.ts
+├── middleware.ts
+├── tailwind.config.js
+└── .env.local
