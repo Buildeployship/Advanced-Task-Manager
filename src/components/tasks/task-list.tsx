@@ -6,19 +6,14 @@ import { Task } from '@/lib/types';
 import TaskItem from './task-item';
 import TaskForm from './task-form';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+// ...existing code...
 
 import { Dialog, DialogContent, DialogTrigger } from '@/components/ui/dialog';
-import { Plus, Search, BarChart3, CheckCircle2, Clock, AlertTriangle } from 'lucide-react';
+import { Plus } from 'lucide-react';
 
 export default function TaskList() {
   const [tasks, setTasks] = useState<Task[]>([]);
-  const [filteredTasks, setFilteredTasks] = useState<Task[]>([]);
   const [loading, setLoading] = useState(true);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [priorityFilter, setPriorityFilter] = useState<'all' | 'low' | 'medium' | 'high'>('all');
-  const [statusFilter, setStatusFilter] = useState<'all' | 'completed' | 'pending'>('all');
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingTask, setEditingTask] = useState<Task | null>(null);
   
@@ -70,29 +65,7 @@ export default function TaskList() {
     };
   }, [fetchTasks, supabase]);
 
-  // useEffect for filtering tasks
-  useEffect(() => {
-    let filtered = tasks;
-
-    if (searchTerm) {
-      filtered = filtered.filter(task =>
-        task.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        task.description?.toLowerCase().includes(searchTerm.toLowerCase())
-      );
-    }
-
-    if (priorityFilter !== 'all') {
-      filtered = filtered.filter(task => task.priority === priorityFilter);
-    }
-
-    if (statusFilter !== 'all') {
-      filtered = filtered.filter(task => 
-        statusFilter === 'completed' ? task.completed : !task.completed
-      );
-    }
-
-    setFilteredTasks(filtered);
-  }, [tasks, searchTerm, priorityFilter, statusFilter]);
+  // Removed obsolete filtering useEffect
 
 
 
@@ -127,11 +100,7 @@ export default function TaskList() {
     setEditingTask(null);
   };
 
-  const completedTasks = tasks.filter(t => t.completed).length;
-  const pendingTasks = tasks.filter(t => !t.completed).length;
-  const overdueTasks = tasks.filter(t => 
-    t.due_date && new Date(t.due_date) < new Date() && !t.completed
-  ).length;
+  // Removed unused stats variables
 
   if (loading) {
     return (
@@ -155,195 +124,59 @@ export default function TaskList() {
     );
   }
 
+  // Kanban columns
+  const columns = [
+    { key: 'todo', title: 'To Do' },
+    { key: 'inprogress', title: 'In Progress' },
+    { key: 'done', title: 'Done' },
+  ];
+
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="space-y-8">
-          {/* Header */}
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
-            <div>
-              <h1 className="text-3xl font-bold text-gray-900">Task Dashboard</h1>
-              <p className="mt-2 text-gray-600">Manage your tasks efficiently and stay organized</p>
-            </div>
-            
-            <div className="mt-4 sm:mt-0">
-              <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-                <DialogTrigger asChild>
-                  <Button onClick={() => setEditingTask(null)} size="lg">
-                    <Plus className="w-5 h-5 mr-2" />
-                    New Task
-                  </Button>
-                </DialogTrigger>
-                <DialogContent>
-                  <TaskForm
-                    task={editingTask === null ? undefined : editingTask}
-                    onSuccess={handleFormSuccess}
-                    onCancel={handleFormCancel}
-                  />
-                </DialogContent>
-              </Dialog>
-            </div>
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-8">
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900">Kanban Board</h1>
+            <p className="mt-2 text-gray-600">Drag and drop tasks between columns</p>
           </div>
-
-          {/* Stats Cards */}
-          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
-            <div className="bg-white overflow-hidden shadow rounded-lg">
-              <div className="p-6">
-                <div className="flex items-center">
-                  <div className="flex-shrink-0">
-                    <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
-                      <BarChart3 className="w-6 h-6 text-blue-600" />
-                    </div>
-                  </div>
-                  <div className="ml-4">
-                    <p className="text-sm font-medium text-gray-500 uppercase tracking-wide">Total Tasks</p>
-                    <p className="text-2xl font-bold text-gray-900">{tasks.length}</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div className="bg-white overflow-hidden shadow rounded-lg">
-              <div className="p-6">
-                <div className="flex items-center">
-                  <div className="flex-shrink-0">
-                    <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
-                      <CheckCircle2 className="w-6 h-6 text-green-600" />
-                    </div>
-                  </div>
-                  <div className="ml-4">
-                    <p className="text-sm font-medium text-gray-500 uppercase tracking-wide">Completed</p>
-                    <p className="text-2xl font-bold text-green-600">{completedTasks}</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div className="bg-white overflow-hidden shadow rounded-lg">
-              <div className="p-6">
-                <div className="flex items-center">
-                  <div className="flex-shrink-0">
-                    <div className="w-12 h-12 bg-yellow-100 rounded-lg flex items-center justify-center">
-                      <Clock className="w-6 h-6 text-yellow-600" />
-                    </div>
-                  </div>
-                  <div className="ml-4">
-                    <p className="text-sm font-medium text-gray-500 uppercase tracking-wide">Pending</p>
-                    <p className="text-2xl font-bold text-yellow-600">{pendingTasks}</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div className="bg-white overflow-hidden shadow rounded-lg">
-              <div className="p-6">
-                <div className="flex items-center">
-                  <div className="flex-shrink-0">
-                    <div className="w-12 h-12 bg-red-100 rounded-lg flex items-center justify-center">
-                      <AlertTriangle className="w-6 h-6 text-red-600" />
-                    </div>
-                  </div>
-                  <div className="ml-4">
-                    <p className="text-sm font-medium text-gray-500 uppercase tracking-wide">Overdue</p>
-                    <p className="text-2xl font-bold text-red-600">{overdueTasks}</p>
-                  </div>
-                </div>
-              </div>
-            </div>
+          <div className="mt-4 sm:mt-0">
+            <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+              <DialogTrigger asChild>
+                <Button onClick={() => setEditingTask(null)} size="lg">
+                  <Plus className="w-5 h-5 mr-2" />
+                  New Task
+                </Button>
+              </DialogTrigger>
+              <DialogContent>
+                <TaskForm
+                  task={editingTask === null ? undefined : editingTask}
+                  onSuccess={handleFormSuccess}
+                  onCancel={handleFormCancel}
+                />
+              </DialogContent>
+            </Dialog>
           </div>
-
-          {/* Search and Filters */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center">
-                <Search className="w-5 h-5 mr-2 text-gray-400" />
-                Search & Filter
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-                <div className="relative">
-                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <Search className="h-5 w-5 text-gray-400" />
-                  </div>
-                  <Input
-                    type="text"
-                    placeholder="Search tasks..."
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    className="pl-10"
-                  />
-                </div>
-                
-                <select
-                  value={priorityFilter}
-                  onChange={(e) => setPriorityFilter(e.target.value as 'low' | 'medium' | 'high' | 'all')}
-                  className="block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md"
-                >
-                  <option value="all">All Priorities</option>
-                  <option value="high">High Priority</option>
-                  <option value="medium">Medium Priority</option>
-                  <option value="low">Low Priority</option>
-                </select>
-                
-                <select
-                  value={statusFilter}
-                  onChange={(e) => setStatusFilter(e.target.value as 'pending' | 'completed' | 'all')}
-                  className="block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md"
-                >
-                  <option value="all">All Tasks</option>
-                  <option value="pending">Pending Only</option>
-                  <option value="completed">Completed Only</option>
-                </select>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Task List */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Your Tasks</CardTitle>
-              <CardDescription>
-                {filteredTasks.length} {filteredTasks.length === 1 ? 'task' : 'tasks'} 
-                {searchTerm && ` matching "${searchTerm}"`}
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              {filteredTasks.length === 0 ? (
-                <div className="text-center py-12">
-                  <div className="mx-auto w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mb-6">
-                    <CheckCircle2 className="w-12 h-12 text-gray-400" />
-                  </div>
-                  {tasks.length === 0 ? (
-                    <div>
-                      <h3 className="text-lg font-medium text-gray-900 mb-2">No tasks yet</h3>
-                      <p className="text-gray-500 mb-6">Create your first task to get started with organizing your work.</p>
-                      <Button onClick={() => setIsDialogOpen(true)}>
-                        <Plus className="w-4 h-4 mr-2" />
-                        Create First Task
-                      </Button>
-                    </div>
-                  ) : (
-                    <div>
-                      <h3 className="text-lg font-medium text-gray-900 mb-2">No matching tasks</h3>
-                      <p className="text-gray-500">Try adjusting your search or filter criteria.</p>
-                    </div>
-                  )}
-                </div>
-              ) : (
-                <div className="space-y-4">
-                  {filteredTasks.map((task) => (
+        </div>
+        <div className="flex gap-6 overflow-x-auto">
+          {columns.map((col) => (
+            <div key={col.key} className="flex-1 min-w-[320px] bg-white rounded-lg shadow p-4 flex flex-col">
+              <h2 className="text-xl font-semibold mb-4">{col.title}</h2>
+              <div className="flex-1 space-y-4">
+                {tasks.filter(task => task.status === col.key).length === 0 ? (
+                  <div className="text-gray-400 text-center py-8">No tasks</div>
+                ) : (
+                  tasks.filter(task => task.status === col.key).map(task => (
                     <TaskItem
                       key={task.id}
                       task={task}
                       onEdit={handleEdit}
                       onDelete={handleDelete}
                     />
-                  ))}
-                </div>
-              )}
-            </CardContent>
-          </Card>
+                  ))
+                )}
+              </div>
+            </div>
+          ))}
         </div>
       </div>
     </div>
