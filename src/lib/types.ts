@@ -8,6 +8,7 @@ export interface Task {
   user_id: string;
   created_at: string;
   updated_at: string;
+  status: 'todo' | 'inprogress' | 'done';
 }
 
 export interface User {
