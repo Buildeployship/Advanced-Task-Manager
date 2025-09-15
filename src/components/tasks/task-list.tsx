@@ -140,12 +140,15 @@ export default function TaskList() {
             <p className="mt-2 text-gray-600">Drag and drop tasks between columns</p>
           </div>
           <div className="mt-4 sm:mt-0">
-            <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-              <DialogTrigger asChild>
-                <Button onClick={() => setEditingTask(null)} size="lg">
-                  <Plus className="w-5 h-5 mr-2" />
-                  New Task
-                </Button>
+            <Dialog
+              open={isDialogOpen}
+              onOpenChange={(open) => {
+                setIsDialogOpen(open);
+                if (open) setEditingTask(null);
+              }}
+            >
+              <DialogTrigger>
+                New Task
               </DialogTrigger>
               <DialogContent>
                 <TaskForm
