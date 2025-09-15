@@ -13,11 +13,12 @@ export default async function DashboardPage() {
   }
 
   return (
-    <>
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-100">
       <Navigation />
-      <main className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
+      <main className="container mx-auto py-8 px-4 max-w-7xl">
+        <h1 className="text-3xl font-bold text-gray-900 mb-6">Dashboard</h1>
         <TaskList />
       </main>
-    </>
+    </div>
   );
 }

@@ -4,7 +4,6 @@ import { useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { Task } from '@/lib/types';
 
 interface TaskFormProps {
@@ -41,7 +40,6 @@ export default function TaskForm({ task, onSuccess, onCancel }: TaskFormProps) {
       };
 
       if (task) {
-        // Update existing task
         const { error } = await supabase
           .from('tasks')
           .update(taskData)
@@ -49,7 +47,6 @@ export default function TaskForm({ task, onSuccess, onCancel }: TaskFormProps) {
         
         if (error) throw error;
       } else {
-        // Create new task
         const { error } = await supabase
           .from('tasks')
           .insert([taskData]);
@@ -67,73 +64,116 @@ export default function TaskForm({ task, onSuccess, onCancel }: TaskFormProps) {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h2 className="text-lg font-semibold">
+      <div className="border-b border-gray-200 pb-4">
+        <h2 className="text-lg font-medium text-gray-900">
           {task ? 'Edit Task' : 'Create New Task'}
         </h2>
+        <p className="mt-1 text-sm text-gray-600">
+          {task ? 'Update your task details below.' : 'Fill in the details for your new task.'}
+        </p>
       </div>
 
-      <div className="space-y-4">
-        <div className="space-y-2">
-          <Label htmlFor="title">Title</Label>
-          <Input
-            id="title"
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-            required
-          />
+      <form onSubmit={handleSubmit} className="space-y-6">
+        <div>
+          <label htmlFor="title" className="block text-sm font-medium text-gray-700">
+            Title *
+          </label>
+          <div className="mt-1">
+            <Input
+              type="text"
+              id="title"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              placeholder="Enter task title..."
+              required
+              className="block w-full"
+            />
+          </div>
         </div>
 
-        <div className="space-y-2">
-          <Label htmlFor="description">Description</Label>
-          <textarea
-            id="description"
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-            className="flex min-h-[80px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-            placeholder="Task description..."
-          />
+        <div>
+          <label htmlFor="description" className="block text-sm font-medium text-gray-700">
+            Description
+          </label>
+          <div className="mt-1">
+            <textarea
+              id="description"
+              rows={3}
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              placeholder="Enter task description..."
+              className="block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+            />
+          </div>
         </div>
 
-        <div className="space-y-2">
-          <Label htmlFor="priority">Priority</Label>
-          <select
-            id="priority"
-            value={priority}
-            onChange={(e) => setPriority(e.target.value as 'low' | 'medium' | 'high')}
-            className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-          >
-            <option value="low">Low</option>
-            <option value="medium">Medium</option>
-            <option value="high">High</option>
-          </select>
-        </div>
+        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
+          <div>
+            <label htmlFor="priority" className="block text-sm font-medium text-gray-700">
+              Priority
+            </label>
+            <div className="mt-1">
+              <select
+                id="priority"
+                value={priority}
+                onChange={(e) => setPriority(e.target.value as 'low' | 'medium' | 'high')}
+                className="block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md"
+              >
+                <option value="low">Low Priority</option>
+                <option value="medium">Medium Priority</option>
+                <option value="high">High Priority</option>
+              </select>
+            </div>
+          </div>
 
-        <div className="space-y-2">
-          <Label htmlFor="dueDate">Due Date</Label>
-          <Input
-            id="dueDate"
-            type="date"
-            value={dueDate}
-            onChange={(e) => setDueDate(e.target.value)}
-          />
+          <div>
+            <label htmlFor="dueDate" className="block text-sm font-medium text-gray-700">
+              Due Date
+            </label>
+            <div className="mt-1">
+              <Input
+                type="date"
+                id="dueDate"
+                value={dueDate}
+                onChange={(e) => setDueDate(e.target.value)}
+                className="block w-full"
+              />
+            </div>
+          </div>
         </div>
 
         {error && (
-          <div className="text-sm text-red-600 bg-red-50 p-3 rounded">
-            {error}
+          <div className="rounded-md bg-red-50 p-4">
+            <div className="flex">
+              <div className="ml-3">
+                <h3 className="text-sm font-medium text-red-800">
+                  Error creating task
+                </h3>
+                <div className="mt-2 text-sm text-red-700">
+                  <p>{error}</p>
+                </div>
+              </div>
+            </div>
           </div>
         )}
 
-        <div className="flex gap-2 pt-4">
-          <Button onClick={handleSubmit} disabled={loading || !title.trim()}>
-            {loading ? 'Saving...' : (task ? 'Update' : 'Create')}
-          </Button>
-          <Button variant="outline" onClick={onCancel}>
+        <div className="flex justify-end space-x-3 pt-6 border-t border-gray-200">
+          <Button
+            type="button"
+            variant="outline"
+            onClick={onCancel}
+            disabled={loading}
+          >
             Cancel
           </Button>
+          <Button
+            type="submit"
+            disabled={loading || !title.trim()}
+          >
+            {loading ? 'Saving...' : (task ? 'Update Task' : 'Create Task')}
+          </Button>
         </div>
-      </div>
+      </form>
     </div>
   );
 }
